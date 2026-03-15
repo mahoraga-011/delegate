@@ -1,6 +1,7 @@
 import {
   createPublicClient,
   createWalletClient,
+  defineChain,
   http,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -93,7 +94,9 @@ export interface ChainClient {
 
 export function createChainClient(config: ChainConfig): ChainClient {
   const account = privateKeyToAccount(config.privateKey as `0x${string}`);
-  const chain = baseSepolia;
+  const chain = config.chainId
+    ? defineChain({ id: config.chainId, name: "custom", nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [config.rpc] } } })
+    : baseSepolia;
 
   const publicClient = createPublicClient({
     chain,

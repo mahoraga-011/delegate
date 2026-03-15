@@ -53,6 +53,7 @@ export type AuditEntry = {
 export type ChainConfig = {
   rpc: string;
   privateKey: string;
+  chainId?: number;
   contracts: {
     registry: `0x${string}`;
     auditLog: `0x${string}`;

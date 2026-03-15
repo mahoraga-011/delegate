@@ -188,7 +188,7 @@ var VERIFIER_ABI = [
 ];
 function createChainClient(config) {
   const account = (0, import_accounts.privateKeyToAccount)(config.privateKey);
-  const chain = import_chains.baseSepolia;
+  const chain = config.chainId ? (0, import_viem2.defineChain)({ id: config.chainId, name: "custom", nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [config.rpc] } } }) : import_chains.baseSepolia;
   const publicClient = (0, import_viem2.createPublicClient)({
     chain,
     transport: (0, import_viem2.http)(config.rpc)

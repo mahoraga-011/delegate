@@ -76,6 +76,7 @@ function hashObject(obj) {
 import {
   createPublicClient,
   createWalletClient,
+  defineChain,
   http
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -154,7 +155,7 @@ var VERIFIER_ABI = [
 ];
 function createChainClient(config) {
   const account = privateKeyToAccount(config.privateKey);
-  const chain = baseSepolia;
+  const chain = config.chainId ? defineChain({ id: config.chainId, name: "custom", nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 }, rpcUrls: { default: { http: [config.rpc] } } }) : baseSepolia;
   const publicClient = createPublicClient({
     chain,
     transport: http(config.rpc)
