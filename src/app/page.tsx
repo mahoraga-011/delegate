@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useAccount } from "wagmi";
 import {
   evaluatePolicy,
   makeAuditEntry,
@@ -8,16 +9,23 @@ import {
   seedAuditLog,
   seedRequest,
   type AgentActionRequest,
+  type AuditEntry,
 } from "@/lib/delegate";
+import { useAttest } from "@/hooks/use-attest";
 import { Hero } from "@/components/sections/hero";
 import { PolicySelector } from "@/components/sections/policy-selector";
 import { ActionForm } from "@/components/sections/action-form";
 import { AuditLog } from "@/components/sections/audit-log";
+import { Verification } from "@/components/sections/verification";
+import { WalletButton } from "@/components/wallet-button";
 
 export default function Home() {
   const [selectedPolicyId, setSelectedPolicyId] = useState(samplePolicies[0].id);
   const [request, setRequest] = useState<AgentActionRequest>(seedRequest);
-  const [auditLog, setAuditLog] = useState(seedAuditLog);
+  const [auditLog, setAuditLog] = useState<AuditEntry[]>(seedAuditLog);
+
+  const { isConnected } = useAccount();
+  const { attest, isPending: isAttesting } = useAttest();
 
   const selectedPolicy = useMemo(
     () => samplePolicies.find((p) => p.id === selectedPolicyId) ?? samplePolicies[0],
@@ -30,8 +38,19 @@ export default function Home() {
     setRequest((current) => ({ ...current, [field]: value }));
   };
 
-  const handleSubmit = () => {
-    setAuditLog((current) => [makeAuditEntry(selectedPolicy, request, current.length), ...current]);
+  const handleSubmit = async () => {
+    const entry = makeAuditEntry(selectedPolicy, request, auditLog.length);
+
+    if (isConnected) {
+      try {
+        const txHash = await attest(selectedPolicy, request, result);
+        entry.txHash = txHash;
+      } catch {
+        // On-chain attestation failed — still add to local log
+      }
+    }
+
+    setAuditLog((current) => [entry, ...current]);
   };
 
   return (
@@ -42,6 +61,9 @@ export default function Home() {
           <span className="text-xl font-bold tracking-tight">
             Delegate<span className="text-muted-foreground">.</span>
           </span>
+          <div className="ml-auto">
+            <WalletButton />
+          </div>
         </nav>
       </header>
 
@@ -54,17 +76,24 @@ export default function Home() {
             selectedPolicyId={selectedPolicyId}
             onSelect={setSelectedPolicyId}
             result={result}
+            isConnected={isConnected}
           />
           <ActionForm
             request={request}
             result={result}
             onUpdate={updateField}
             onSubmit={handleSubmit}
+            isConnected={isConnected}
+            isAttesting={isAttesting}
           />
         </div>
 
         <div className="mt-12">
           <AuditLog entries={auditLog} />
+        </div>
+
+        <div className="mt-12">
+          <Verification policies={samplePolicies} />
         </div>
       </main>
 

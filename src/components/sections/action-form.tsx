@@ -13,11 +13,15 @@ export function ActionForm({
   result,
   onUpdate,
   onSubmit,
+  isConnected,
+  isAttesting,
 }: {
   request: AgentActionRequest;
   result: EvaluationResult;
   onUpdate: <K extends keyof AgentActionRequest>(field: K, value: AgentActionRequest[K]) => void;
   onSubmit: () => void;
+  isConnected: boolean;
+  isAttesting: boolean;
 }) {
   return (
     <div className="space-y-5">
@@ -124,8 +128,12 @@ export function ActionForm({
           >
             {result.outcome}
           </Badge>
-          <Button onClick={onSubmit} size="sm">
-            Add to audit log
+          <Button onClick={onSubmit} size="sm" disabled={isAttesting}>
+            {isAttesting
+              ? "Attesting…"
+              : isConnected
+                ? "Attest + log"
+                : "Add to audit log"}
           </Button>
         </div>
       </div>

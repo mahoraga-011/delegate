@@ -1,6 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { ExternalLink } from "lucide-react";
+import { explorerTxUrl } from "@/lib/contracts";
 import type { AuditEntry } from "@/lib/delegate";
 
 export function AuditLog({ entries }: { entries: AuditEntry[] }) {
@@ -41,6 +43,7 @@ export function AuditLog({ entries }: { entries: AuditEntry[] }) {
                     {entry.result.outcome}
                   </Badge>
                   <span className="text-xs text-muted-foreground">{entry.policyName}</span>
+                  {entry.txHash && <TxHashBadge txHash={entry.txHash} />}
                 </div>
                 <time className="shrink-0 text-xs tabular-nums text-muted-foreground">
                   {new Date(entry.timestamp).toLocaleString("en-US", {
@@ -82,6 +85,31 @@ export function AuditLog({ entries }: { entries: AuditEntry[] }) {
         </div>
       )}
     </section>
+  );
+}
+
+function TxHashBadge({ txHash }: { txHash: string }) {
+  const url = explorerTxUrl(txHash);
+  const truncated = `${txHash.slice(0, 8)}…${txHash.slice(-6)}`;
+
+  if (url) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {truncated}
+        <ExternalLink className="h-2.5 w-2.5" />
+      </a>
+    );
+  }
+
+  return (
+    <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+      tx:{truncated}
+    </code>
   );
 }
 
