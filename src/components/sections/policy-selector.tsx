@@ -2,6 +2,8 @@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useRegisterPolicy } from "@/hooks/use-register-policy";
 import type { Policy, EvaluationResult } from "@/lib/delegate";
 
 export function PolicySelector({
@@ -9,13 +11,24 @@ export function PolicySelector({
   selectedPolicyId,
   onSelect,
   result,
+  isConnected,
 }: {
   policies: Policy[];
   selectedPolicyId: string;
   onSelect: (id: string) => void;
   result: EvaluationResult;
+  isConnected: boolean;
 }) {
   const selectedPolicy = policies.find((p) => p.id === selectedPolicyId) ?? policies[0];
+  const { register, txHash, isPending, isSuccess } = useRegisterPolicy();
+
+  const handleRegister = async () => {
+    try {
+      await register(selectedPolicy);
+    } catch {
+      // registration failed
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -39,6 +52,20 @@ export function PolicySelector({
           </TabsContent>
         ))}
       </Tabs>
+
+      {/* Register on-chain */}
+      {isConnected && (
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" onClick={handleRegister} disabled={isPending}>
+            {isPending ? "Registering…" : "Register on-chain"}
+          </Button>
+          {isSuccess && txHash && (
+            <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+              {txHash.slice(0, 10)}…{txHash.slice(-6)}
+            </code>
+          )}
+        </div>
+      )}
 
       <div className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Rules</p>
