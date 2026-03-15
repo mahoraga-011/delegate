@@ -196,8 +196,18 @@ export const evaluatePolicy = (policy: Policy, request: AgentActionRequest): Eva
   };
 };
 
+const shortId = () => {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const segments = [4, 4];
+  return segments
+    .map((len) =>
+      Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("")
+    )
+    .join("-");
+};
+
 export const makeAuditEntry = (policy: Policy, request: AgentActionRequest, index: number): AuditEntry => ({
-  id: `audit-${index + 1}`,
+  id: `dlg-${shortId()}`,
   timestamp: new Date(Date.now() - index * 1000 * 60 * 11).toISOString(),
   policyName: policy.name,
   request,
@@ -212,27 +222,35 @@ export const seedRequest: AgentActionRequest = {
   justification: "Summarize recent incident notes before standup.",
 };
 
+const seedRequest1: AgentActionRequest = {
+  actionType: "summarize",
+  tool: "read",
+  risk: 3,
+  target: "staging-postmortems",
+  justification: "Generate a short operator digest.",
+};
+
+const seedRequest2: AgentActionRequest = {
+  actionType: "execute",
+  tool: "exec",
+  risk: 8,
+  target: "prod-ledger-node",
+  justification: "Restart the failed service automatically.",
+};
+
 export const seedAuditLog: AuditEntry[] = [
-  makeAuditEntry(
-    samplePolicies[0],
-    {
-      actionType: "summarize",
-      tool: "read",
-      risk: 3,
-      target: "staging-postmortems",
-      justification: "Generate a short operator digest.",
-    },
-    0,
-  ),
-  makeAuditEntry(
-    samplePolicies[0],
-    {
-      actionType: "execute",
-      tool: "exec",
-      risk: 8,
-      target: "prod-ledger-node",
-      justification: "Restart the failed service automatically.",
-    },
-    1,
-  ),
+  {
+    id: "dlg-v7k2-m9x4",
+    timestamp: "2026-03-15T08:00:00.000Z",
+    policyName: samplePolicies[0].name,
+    request: seedRequest1,
+    result: evaluatePolicy(samplePolicies[0], seedRequest1),
+  },
+  {
+    id: "dlg-a3f1-p2w8",
+    timestamp: "2026-03-15T07:49:00.000Z",
+    policyName: samplePolicies[0].name,
+    request: seedRequest2,
+    result: evaluatePolicy(samplePolicies[0], seedRequest2),
+  },
 ];
