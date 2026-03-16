@@ -79,7 +79,7 @@ export function AgreementPanel({ policies }: { policies: Policy[] }) {
           <div className="space-y-1.5">
             <Label>Policy</Label>
             <select
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
               value={selectedPolicyId}
               onChange={(e) => setSelectedPolicyId(e.target.value)}
             >

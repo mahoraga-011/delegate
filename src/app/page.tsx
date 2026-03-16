@@ -22,6 +22,7 @@ import { TrustPanel } from "@/components/sections/trust-panel";
 import { AgreementPanel } from "@/components/sections/agreement-panel";
 import { SpendingPanel } from "@/components/sections/spending-panel";
 import { WalletButton } from "@/components/wallet-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type Tab = "evaluate" | "trust" | "cooperate" | "pay";
 
@@ -75,7 +76,8 @@ export default function Home() {
           <span className="text-xl font-bold tracking-tight">
             Delegate<span className="text-muted-foreground">.</span>
           </span>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <ThemeToggle />
             <WalletButton />
           </div>
         </nav>
