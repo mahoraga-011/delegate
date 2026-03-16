@@ -136,8 +136,8 @@ async function main() {
   console.log(`   Result: ${wrapResult.result}`);
   console.log(`   Tx hash: ${wrapResult.txHash}`);
   assert(wrapResult.allowed === true, "Should be allowed");
-  assert(toolCalled === true, "Tool should have been called");
-  assert(wrapResult.txHash?.startsWith("0x"), "Should have tx hash");
+  assert((toolCalled as boolean) === true, "Tool should have been called");
+  assert(wrapResult.txHash?.startsWith("0x") === true, "Should have tx hash");
 
   console.log("\n=== All tests passed! ===");
 }
