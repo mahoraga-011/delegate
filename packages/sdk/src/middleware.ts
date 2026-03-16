@@ -1,7 +1,8 @@
 import type { Policy, AgentActionRequest } from "./types.js";
 import type { ChainClient } from "./chain.js";
 import { evaluatePolicy } from "./engine.js";
-import { attest } from "./chain.js";
+import { attest, recordSpend, VAULT_ABI } from "./chain.js";
+import { hashObject } from "./hashing.js";
 
 export type ToolFunction<TArgs extends unknown[] = unknown[], TReturn = unknown> = (
   ...args: TArgs
@@ -40,6 +41,20 @@ export function wrap<TArgs extends unknown[], TReturn>(
         reason: evaluation.reason,
         txHash,
       };
+    }
+
+    // If request has amount and vault is configured, route payment through vault
+    if (request.amount && request.recipient && chainClient?.contracts.vault) {
+      const policyHash = hashObject(policy) as `0x${string}`;
+      const amountWei = BigInt(Math.floor(request.amount * 1e18));
+      try {
+        await recordSpend(chainClient, policyHash, request.recipient as `0x${string}`, amountWei);
+      } catch (err) {
+        return {
+          allowed: false,
+          reason: `Vault spend denied: ${err instanceof Error ? err.message : String(err)}`,
+        };
+      }
     }
 
     // Policy allows — execute the tool
