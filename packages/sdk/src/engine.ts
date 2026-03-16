@@ -1,7 +1,7 @@
 import type { AgentActionRequest, EvaluationResult, Policy, PolicyCheck, PolicyRule } from "./types.js";
 
 export const evaluateRule = (request: AgentActionRequest, rule: PolicyRule): PolicyCheck => {
-  const rawValue = request[rule.field];
+  const rawValue = request[rule.field as keyof AgentActionRequest];
   const normalized = typeof rawValue === "string" ? rawValue.toLowerCase() : rawValue;
   const expected = typeof rule.value === "string" ? rule.value.toLowerCase() : rule.value;
 

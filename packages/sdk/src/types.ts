@@ -1,7 +1,7 @@
 export type PolicyRule = {
   id: string;
   label: string;
-  field: "actionType" | "tool" | "risk" | "target";
+  field: "actionType" | "tool" | "risk" | "target" | "amount" | "recipient" | "currency";
   operator: "equals" | "notEquals" | "includes" | "notIncludes" | "lte" | "gte";
   value: string | number;
   rationale: string;
@@ -21,6 +21,11 @@ export type AgentActionRequest = {
   risk: number;
   target: string;
   justification: string;
+  amount?: number;
+  currency?: string;
+  recipient?: string;
+  agentId?: string;
+  agreementId?: string;
 };
 
 export type PolicyCheck = {
@@ -50,6 +55,31 @@ export type AuditEntry = {
   txHash?: string;
 };
 
+export type AgentIdentity = {
+  agentId: string;
+  owner: string;
+  metadataURI: string;
+  policyHashes: string[];
+};
+
+export type Agreement = {
+  agreementId: string;
+  policyHash: string;
+  partyA: string;
+  partyB: string;
+  signedByA: boolean;
+  signedByB: boolean;
+  finalized: boolean;
+};
+
+export type VaultInfo = {
+  balance: bigint;
+  spentToday: bigint;
+  maxPerTx: bigint;
+  maxPerDay: bigint;
+  allowedRecipients: string[];
+};
+
 export type ChainConfig = {
   rpc: string;
   privateKey: string;
@@ -58,6 +88,9 @@ export type ChainConfig = {
     registry: `0x${string}`;
     auditLog: `0x${string}`;
     verifier: `0x${string}`;
+    agentRegistry?: `0x${string}`;
+    agreement?: `0x${string}`;
+    vault?: `0x${string}`;
   };
 };
 
