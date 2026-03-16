@@ -14,10 +14,16 @@ const anvil = defineChain({
 
 const chainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID || "31337");
 
-export const config = createConfig({
-  chains: chainId === 31337 ? [anvil] : [baseSepolia],
+const anvilConfig = createConfig({
+  chains: [anvil],
   connectors: [injected()],
-  transports: chainId === 31337
-    ? { [anvil.id]: http("http://127.0.0.1:8545") }
-    : { [baseSepolia.id]: http() },
+  transports: { [anvil.id]: http("http://127.0.0.1:8545") },
 });
+
+const sepoliaConfig = createConfig({
+  chains: [baseSepolia],
+  connectors: [injected()],
+  transports: { [baseSepolia.id]: http() },
+});
+
+export const config = chainId === 31337 ? anvilConfig : sepoliaConfig;

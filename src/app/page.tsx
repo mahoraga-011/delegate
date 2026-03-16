@@ -6,6 +6,7 @@ import {
   evaluatePolicy,
   makeAuditEntry,
   samplePolicies,
+  allPolicies,
   seedAuditLog,
   seedRequest,
   type AgentActionRequest,
@@ -17,9 +18,15 @@ import { PolicySelector } from "@/components/sections/policy-selector";
 import { ActionForm } from "@/components/sections/action-form";
 import { AuditLog } from "@/components/sections/audit-log";
 import { Verification } from "@/components/sections/verification";
+import { TrustPanel } from "@/components/sections/trust-panel";
+import { AgreementPanel } from "@/components/sections/agreement-panel";
+import { SpendingPanel } from "@/components/sections/spending-panel";
 import { WalletButton } from "@/components/wallet-button";
 
+type Tab = "evaluate" | "trust" | "cooperate" | "pay";
+
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<Tab>("evaluate");
   const [selectedPolicyId, setSelectedPolicyId] = useState(samplePolicies[0].id);
   const [request, setRequest] = useState<AgentActionRequest>(seedRequest);
   const [auditLog, setAuditLog] = useState<AuditEntry[]>(seedAuditLog);
@@ -53,6 +60,13 @@ export default function Home() {
     setAuditLog((current) => [entry, ...current]);
   };
 
+  const tabs: { id: Tab; label: string; theme?: string }[] = [
+    { id: "evaluate", label: "Evaluate" },
+    { id: "trust", label: "Trust", theme: "Agent identity" },
+    { id: "cooperate", label: "Cooperate", theme: "Agreements" },
+    { id: "pay", label: "Pay", theme: "Vault & spending" },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -67,34 +81,63 @@ export default function Home() {
         </nav>
       </header>
 
+      {/* Tabs */}
+      <div className="border-b">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="flex gap-0">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === tab.id
+                    ? "border-foreground text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <main className="mx-auto max-w-5xl px-6 py-10">
-        <Hero policy={selectedPolicy} result={result} />
+        {activeTab === "evaluate" && (
+          <>
+            <Hero policy={selectedPolicy} result={result} />
 
-        <div className="mt-12 grid gap-8 lg:grid-cols-2">
-          <PolicySelector
-            policies={samplePolicies}
-            selectedPolicyId={selectedPolicyId}
-            onSelect={setSelectedPolicyId}
-            result={result}
-            isConnected={isConnected}
-          />
-          <ActionForm
-            request={request}
-            result={result}
-            onUpdate={updateField}
-            onSubmit={handleSubmit}
-            isConnected={isConnected}
-            isAttesting={isAttesting}
-          />
-        </div>
+            <div className="mt-12 grid gap-8 lg:grid-cols-2">
+              <PolicySelector
+                policies={samplePolicies}
+                selectedPolicyId={selectedPolicyId}
+                onSelect={setSelectedPolicyId}
+                result={result}
+                isConnected={isConnected}
+              />
+              <ActionForm
+                request={request}
+                result={result}
+                onUpdate={updateField}
+                onSubmit={handleSubmit}
+                isConnected={isConnected}
+                isAttesting={isAttesting}
+              />
+            </div>
 
-        <div className="mt-12">
-          <AuditLog entries={auditLog} />
-        </div>
+            <div className="mt-12">
+              <AuditLog entries={auditLog} />
+            </div>
 
-        <div className="mt-12">
-          <Verification policies={samplePolicies} />
-        </div>
+            <div className="mt-12">
+              <Verification policies={samplePolicies} />
+            </div>
+          </>
+        )}
+
+        {activeTab === "trust" && <TrustPanel policies={allPolicies} />}
+        {activeTab === "cooperate" && <AgreementPanel policies={allPolicies} />}
+        {activeTab === "pay" && <SpendingPanel policies={allPolicies} />}
       </main>
 
       <footer className="border-t">

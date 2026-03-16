@@ -6,6 +6,9 @@ export type {
   PolicyCheck,
   EvaluationResult,
   AuditEntry,
+  AgentIdentity,
+  Agreement,
+  VaultInfo,
 } from "@anthropic-hackathon/delegate-sdk";
 
 export { evaluatePolicy } from "@anthropic-hackathon/delegate-sdk";
@@ -97,6 +100,107 @@ export const samplePolicies: Policy[] = [
       },
     ],
   },
+];
+
+export const spendingCapPolicy: Policy = {
+  id: "spending-cap",
+  name: "Spending cap",
+  description:
+    "Max 0.1 ETH per transaction, tool must be transfer, approved recipients only.",
+  defaultEffect: "deny",
+  rules: [
+    {
+      id: "amount-cap",
+      label: "Amount must be at most 0.1 ETH",
+      field: "amount",
+      operator: "lte",
+      value: 0.1,
+      rationale: "Hard cap on per-transaction spending to limit blast radius.",
+    },
+    {
+      id: "tool-transfer",
+      label: "Tool must be transfer",
+      field: "tool",
+      operator: "equals",
+      value: "transfer",
+      rationale: "Only transfer operations are allowed under this spending policy.",
+    },
+    {
+      id: "risk-cap-spend",
+      label: "Risk score must stay at or below 5",
+      field: "risk",
+      operator: "lte",
+      value: 5,
+      rationale: "Financial operations require moderate risk tolerance.",
+    },
+  ],
+};
+
+export const trustVerificationPolicy: Policy = {
+  id: "trust-verification",
+  name: "Trust verification",
+  description:
+    "Low-risk, read/query/verify actions only — ideal for agent identity verification workflows.",
+  defaultEffect: "deny",
+  rules: [
+    {
+      id: "risk-low",
+      label: "Risk score must stay at or below 3",
+      field: "risk",
+      operator: "lte",
+      value: 3,
+      rationale: "Trust verification should be zero-impact.",
+    },
+    {
+      id: "action-readonly",
+      label: "Action type must be read, query, or verify",
+      field: "actionType",
+      operator: "includes",
+      value: "read|query|verify",
+      rationale: "Only read-only operations are permitted in trust flows.",
+    },
+  ],
+};
+
+export const dataSharingPolicy: Policy = {
+  id: "data-sharing-agreement",
+  name: "Data sharing agreement",
+  description:
+    "Read-only access, risk at most 3, staging targets only — for bilateral data sharing agreements.",
+  defaultEffect: "deny",
+  rules: [
+    {
+      id: "action-read-only",
+      label: "Action type must be read",
+      field: "actionType",
+      operator: "equals",
+      value: "read",
+      rationale: "Data sharing agreements restrict to read-only access.",
+    },
+    {
+      id: "risk-cap-sharing",
+      label: "Risk score must stay at or below 3",
+      field: "risk",
+      operator: "lte",
+      value: 3,
+      rationale: "Data sharing must be low-risk.",
+    },
+    {
+      id: "target-staging-only",
+      label: "Target must include staging",
+      field: "target",
+      operator: "includes",
+      value: "staging",
+      rationale: "Data sharing is restricted to staging environments.",
+    },
+  ],
+};
+
+export const allPolicies: Policy[] = [
+  ...samplePolicies,
+  spendingCapPolicy,
+  trustVerificationPolicy,
+  dataSharingPolicy,
 ];
 
 const shortId = () => {

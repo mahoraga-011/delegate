@@ -72,7 +72,7 @@ export function Verification({ policies }: { policies: Policy[] }) {
       <div className="rounded-lg border p-4 space-y-4">
         <div className="space-y-1.5">
           <Label>Policy</Label>
-          <Select value={selectedPolicyId} onValueChange={setSelectedPolicyId}>
+          <Select value={selectedPolicyId} onValueChange={(v) => { if (v) setSelectedPolicyId(v); }}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
