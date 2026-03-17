@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ArchitectureDiagram } from "@/components/docs/architecture-diagram";
+import { FlowDiagram } from "@/components/docs/flow-diagram";
 
 function Code({ children }: { children: string }) {
   return (
@@ -180,6 +181,16 @@ export default function DocsPage() {
                 </p>
               </div>
             </div>
+
+            <Sub title="How two agents interact">
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                Step through the full flow: policy creation, on-chain registration, agent discovery,
+                bilateral agreement, evaluation, attestation, vault spending, and verification.
+              </p>
+              <div className="mt-4">
+                <FlowDiagram />
+              </div>
+            </Sub>
           </Section>
 
           {/* Quick Start */}

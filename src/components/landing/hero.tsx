@@ -31,7 +31,7 @@ export function LandingHero() {
           className="mt-10 flex gap-4"
         >
           <Link href="/dashboard">
-            <Button size="lg">Launch Dashboard</Button>
+            <Button size="lg">Launch App</Button>
           </Link>
           <a href="/skill.md" target="_blank" rel="noopener noreferrer">
             <Button variant="outline" size="lg">Read the docs</Button>
