@@ -76,8 +76,8 @@ export function PolicyBuilderDialog({
     setRules((r) => r.filter((_, i) => i !== index));
   };
 
-  const updateRule = <K extends keyof PolicyRule>(index: number, field: K, value: PolicyRule[K]) => {
-    setRules((r) => r.map((rule, i) => (i === index ? { ...rule, [field]: value } : rule)));
+  const updateRule = (index: number, updates: Partial<PolicyRule>) => {
+    setRules((r) => r.map((rule, i) => (i === index ? { ...rule, ...updates } : rule)));
   };
 
   const isNumericField = (field: string) => {
@@ -177,7 +177,7 @@ export function PolicyBuilderDialog({
                     <Label>Label</Label>
                     <Input
                       value={rule.label}
-                      onChange={(e) => updateRule(index, "label", e.target.value)}
+                      onChange={(e) => updateRule(index, { label: e.target.value })}
                       placeholder="Risk must be at or below 5"
                     />
                   </div>
@@ -189,13 +189,15 @@ export function PolicyBuilderDialog({
                         value={rule.field}
                         onValueChange={(v) => {
                           if (!v) return;
-                          updateRule(index, "field", v as PolicyRule["field"]);
-                          updateRule(index, "value", "");
-                          // Reset operator to a valid one for the new field type
+                          const updates: Partial<PolicyRule> = {
+                            field: v as PolicyRule["field"],
+                            value: "",
+                          };
                           const newOps = isNumericField(v) ? NUMERIC_OPERATORS : STRING_OPERATORS;
                           if (!newOps.find((o) => o.value === rule.operator)) {
-                            updateRule(index, "operator", newOps[0].value);
+                            updates.operator = newOps[0].value;
                           }
+                          updateRule(index, updates);
                         }}
                       >
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -212,7 +214,7 @@ export function PolicyBuilderDialog({
                       <Select
                         value={rule.operator}
                         onValueChange={(v) => {
-                          if (v) updateRule(index, "operator", v as PolicyRule["operator"]);
+                          if (v) updateRule(index, { operator: v as PolicyRule["operator"] });
                         }}
                       >
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -229,7 +231,7 @@ export function PolicyBuilderDialog({
                       <Input
                         type={isNumericField(rule.field) ? "number" : "text"}
                         value={rule.value}
-                        onChange={(e) => updateRule(index, "value", e.target.value)}
+                        onChange={(e) => updateRule(index, { value: e.target.value })}
                         placeholder={isNumericField(rule.field) ? "5" : "read|write"}
                       />
                     </div>
@@ -241,7 +243,7 @@ export function PolicyBuilderDialog({
                     </Label>
                     <Input
                       value={rule.rationale}
-                      onChange={(e) => updateRule(index, "rationale", e.target.value)}
+                      onChange={(e) => updateRule(index, { rationale: e.target.value })}
                       placeholder="Why this rule exists"
                     />
                   </div>
