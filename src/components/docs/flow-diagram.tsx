@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Play, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -144,31 +144,68 @@ function curvePath(fromId: NodeId, toId: NodeId): string {
 export function FlowDiagram() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [hasAutoPlayed, setHasAutoPlayed] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const current = STEPS[step];
 
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
-  const reset = () => { setStep(0); setPlaying(false); };
+  const reset = () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    setStep(0);
+    setPlaying(false);
+  };
 
-  const startAutoPlay = () => {
+  const startAutoPlay = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
     setPlaying(true);
     setStep(0);
     let i = 0;
-    const interval = setInterval(() => {
+    intervalRef.current = setInterval(() => {
       i++;
       if (i >= STEPS.length) {
-        clearInterval(interval);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = null;
         setPlaying(false);
         return;
       }
       setStep(i);
     }, 3000);
-  };
+  }, []);
+
+  // Auto-play when diagram scrolls into view
+  useEffect(() => {
+    if (hasAutoPlayed) return;
+    const el = containerRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasAutoPlayed(true);
+          startAutoPlay();
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.4 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasAutoPlayed, startAutoPlay]);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
 
   const isActive = (id: NodeId) => current.active.includes(id);
 
   return (
-    <div className="space-y-4">
+    <div ref={containerRef} className="space-y-4">
       <div className="rounded-xl border bg-card overflow-hidden">
         <svg viewBox="0 0 750 350" className="w-full" style={{ minWidth: 500 }}>
           <defs>
@@ -273,36 +310,41 @@ export function FlowDiagram() {
           })}
 
           {/* Result badge */}
-          {current.result && (
-            <motion.g
-              key={`result-${step}`}
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4, type: "spring" }}
-            >
-              <rect
-                x={cx(current.arrows.length > 0 ? current.arrows[0].to as NodeId : "engine") - 35}
-                y={cy(current.arrows.length > 0 ? current.arrows[0].to as NodeId : "engine") - 35}
-                width={70}
-                height={26}
-                rx={13}
-                fill={current.result === "allow" ? "#22c55e" : "#ef4444"}
-              />
-              <text
-                x={cx(current.arrows.length > 0 ? current.arrows[0].to as NodeId : "engine")}
-                y={cy(current.arrows.length > 0 ? current.arrows[0].to as NodeId : "engine") - 22}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fill="white"
-                fontSize={11}
-                fontWeight={700}
-                fontFamily="var(--font-sans)"
-                letterSpacing={1.5}
+          {current.result && (() => {
+            const targetId = current.arrows.length > 0 ? current.arrows[0].to as NodeId : "engine";
+            const badgeX = cx(targetId);
+            const badgeY = top(targetId) - 32;
+            return (
+              <motion.g
+                key={`result-${step}`}
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4, type: "spring" }}
               >
-                {current.result.toUpperCase()}
-              </text>
-            </motion.g>
-          )}
+                <rect
+                  x={badgeX - 35}
+                  y={badgeY}
+                  width={70}
+                  height={26}
+                  rx={13}
+                  fill={current.result === "allow" ? "#22c55e" : "#ef4444"}
+                />
+                <text
+                  x={badgeX}
+                  y={badgeY + 13}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="white"
+                  fontSize={11}
+                  fontWeight={700}
+                  fontFamily="var(--font-sans)"
+                  letterSpacing={1.5}
+                >
+                  {current.result.toUpperCase()}
+                </text>
+              </motion.g>
+            );
+          })()}
         </svg>
       </div>
 

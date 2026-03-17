@@ -33,9 +33,9 @@ export function LandingHero() {
           <Link href="/dashboard">
             <Button size="lg">Launch App</Button>
           </Link>
-          <a href="/skill.md" target="_blank" rel="noopener noreferrer">
+          <Link href="/docs">
             <Button variant="outline" size="lg">Read the docs</Button>
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>
