@@ -1,9 +1,9 @@
 "use client";
 
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { hashObject } from "@anthropic-hackathon/delegate-sdk";
+import { hashObject } from "@delegate/sdk";
 import { auditLogConfig } from "@/lib/contracts";
-import type { Policy, AgentActionRequest, EvaluationResult } from "@anthropic-hackathon/delegate-sdk";
+import type { Policy, AgentActionRequest, EvaluationResult } from "@delegate/sdk";
 
 export function useAttest() {
   const { writeContractAsync, data: txHash, isPending, isError, error, reset } = useWriteContract();

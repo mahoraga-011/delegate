@@ -15,7 +15,7 @@ import {
 import { TxFeedback } from "@/components/tx-feedback";
 import { HashDisplay } from "@/components/hash-display";
 import { useProposeAgreement, useSignAgreement, useGetAgreement } from "@/hooks/use-agreement";
-import { hashObject } from "@anthropic-hackathon/delegate-sdk";
+import { hashObject } from "@delegate/sdk";
 import type { Policy } from "@/lib/delegate";
 
 export function AgreementPanel({ policies }: { policies: Policy[] }) {

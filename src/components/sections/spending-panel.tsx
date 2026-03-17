@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TxFeedback } from "@/components/tx-feedback";
-import { hashObject } from "@anthropic-hackathon/delegate-sdk";
+import { hashObject } from "@delegate/sdk";
 import {
   useDeposit,
   useSetSpendingLimit,

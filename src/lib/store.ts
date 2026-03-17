@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Policy, AgentActionRequest, AuditEntry } from "@anthropic-hackathon/delegate-sdk";
+import type { Policy, AgentActionRequest, AuditEntry } from "@delegate/sdk";
 import { samplePolicies } from "./delegate";
 
 interface DelegateStore {
