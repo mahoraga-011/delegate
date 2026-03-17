@@ -222,11 +222,11 @@ export const makeAuditEntry = (policy: Policy, request: AgentActionRequest, inde
 });
 
 export const seedRequest: AgentActionRequest = {
-  actionType: "read",
-  tool: "read",
-  risk: 2,
-  target: "staging-docs-bucket",
-  justification: "Summarize recent incident notes before standup.",
+  actionType: "",
+  tool: "",
+  risk: 0,
+  target: "",
+  justification: "",
 };
 
 const seedRequest1: AgentActionRequest = {
