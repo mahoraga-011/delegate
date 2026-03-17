@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useVerify } from "@/hooks/use-verify";
+import { SectionHeader } from "@/components/section-header";
 import { evaluatePolicy, type Policy, type AgentActionRequest } from "@/lib/delegate";
 
 export function Verification({ policies }: { policies: Policy[] }) {
@@ -48,26 +49,18 @@ export function Verification({ policies }: { policies: Policy[] }) {
       }
       const result = evaluatePolicy(policy, request);
       setVerifyTarget({ policy, request, result });
-      // refetch will trigger automatically since enabled changes
       setTimeout(() => refetch(), 100);
     } catch {
       setParseError("Invalid JSON. Paste a valid AgentActionRequest object.");
     }
   };
 
-  if (!isConnected) return null;
-
   return (
     <section className="space-y-5">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-          On-chain verification
-        </p>
-        <h2 className="mt-1 text-lg font-semibold tracking-tight">Verify a decision</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Re-evaluate a request against a policy, hash it, and check if the decision exists on-chain.
-        </p>
-      </div>
+      <SectionHeader
+        title="Verify a decision"
+        description="Re-evaluate a request against a policy, hash it, and check if the decision exists on-chain."
+      />
 
       <div className="rounded-lg border p-4 space-y-4">
         <div className="space-y-1.5">
@@ -91,7 +84,7 @@ export function Verification({ policies }: { policies: Policy[] }) {
           <Textarea
             value={requestJson}
             onChange={(e) => setRequestJson(e.target.value)}
-            placeholder={`{"actionType":"read","tool":"read","risk":2,"target":"staging-docs-bucket","justification":"..."}`}
+            placeholder={`{"actionType":"read","tool":"read","risk":2,"target":"staging-docs","justification":"..."}`}
             rows={3}
             className="font-mono text-xs"
           />
@@ -99,8 +92,12 @@ export function Verification({ policies }: { policies: Policy[] }) {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button size="sm" onClick={handleVerify} disabled={isLoading || !requestJson.trim()}>
-            {isLoading ? "Checking…" : "Verify on-chain"}
+          <Button
+            size="sm"
+            onClick={handleVerify}
+            disabled={isLoading || !requestJson.trim() || !isConnected}
+          >
+            {!isConnected ? "Connect wallet to verify" : isLoading ? "Checking..." : "Verify on-chain"}
           </Button>
 
           {verifyTarget && isVerified !== undefined && (
@@ -111,14 +108,12 @@ export function Verification({ policies }: { policies: Policy[] }) {
               >
                 {isVerified ? "verified" : "not found"}
               </Badge>
-              {verifyTarget && (
-                <Badge
-                  variant={verifyTarget.result.outcome === "allow" ? "secondary" : "destructive"}
-                  className="font-mono text-[10px] uppercase"
-                >
-                  {verifyTarget.result.outcome}
-                </Badge>
-              )}
+              <Badge
+                variant={verifyTarget.result.outcome === "allow" ? "secondary" : "destructive"}
+                className="font-mono text-[10px] uppercase"
+              >
+                {verifyTarget.result.outcome}
+              </Badge>
             </div>
           )}
         </div>

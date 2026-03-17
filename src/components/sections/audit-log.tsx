@@ -1,22 +1,33 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import { explorerTxUrl } from "@/lib/contracts";
+import { SectionHeader } from "@/components/section-header";
 import type { AuditEntry } from "@/lib/delegate";
 
-export function AuditLog({ entries }: { entries: AuditEntry[] }) {
+export function AuditLog({
+  entries,
+  onClear,
+}: {
+  entries: AuditEntry[];
+  onClear: () => void;
+}) {
   return (
     <section className="space-y-5">
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Step 4</p>
-          <h2 className="mt-1 text-lg font-semibold tracking-tight">Audit log</h2>
-        </div>
-        <p className="text-xs tabular-nums text-muted-foreground">
-          {entries.length} {entries.length === 1 ? "entry" : "entries"}
-        </p>
-      </div>
+      <SectionHeader
+        id="log"
+        title="Audit log"
+        description={entries.length > 0 ? `${entries.length} ${entries.length === 1 ? "entry" : "entries"}` : undefined}
+        action={
+          entries.length > 0 ? (
+            <Button variant="outline" size="sm" onClick={onClear}>
+              Clear log
+            </Button>
+          ) : undefined
+        }
+      />
 
       {entries.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-14 text-center">
@@ -66,7 +77,9 @@ export function AuditLog({ entries }: { entries: AuditEntry[] }) {
               </div>
 
               {/* Justification */}
-              <p className="text-xs leading-relaxed text-muted-foreground">{entry.request.justification}</p>
+              {entry.request.justification && (
+                <p className="text-xs leading-relaxed text-muted-foreground">{entry.request.justification}</p>
+              )}
 
               {/* Rule check pills */}
               <div className="flex flex-wrap gap-1.5">
@@ -90,7 +103,7 @@ export function AuditLog({ entries }: { entries: AuditEntry[] }) {
 
 function TxHashBadge({ txHash }: { txHash: string }) {
   const url = explorerTxUrl(txHash);
-  const truncated = `${txHash.slice(0, 8)}…${txHash.slice(-6)}`;
+  const truncated = `${txHash.slice(0, 8)}...${txHash.slice(-6)}`;
 
   if (url) {
     return (
@@ -117,7 +130,7 @@ function MetaCell({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-card px-3 py-2">
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="mt-0.5 truncate font-medium">{value}</p>
+      <p className="mt-0.5 truncate font-medium">{value || "-"}</p>
     </div>
   );
 }

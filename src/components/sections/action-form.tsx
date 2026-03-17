@@ -23,13 +23,11 @@ export function ActionForm({
   isConnected: boolean;
   isAttesting: boolean;
 }) {
-  return (
-    <div className="space-y-5">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Step 2</p>
-        <h2 className="mt-1 text-lg font-semibold tracking-tight">Agent action request</h2>
-      </div>
+  const hasInput = request.actionType || request.tool || request.target;
 
+  return (
+    <div className="space-y-6">
+      {/* Form */}
       <div className="rounded-lg border p-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
@@ -38,8 +36,9 @@ export function ActionForm({
               id="actionType"
               value={request.actionType}
               onChange={(e) => onUpdate("actionType", e.target.value)}
-              placeholder="read / summarize / execute"
+              placeholder="read, execute, summarize..."
             />
+            <p className="text-[11px] text-muted-foreground">What the agent wants to do</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="tool">Tool</Label>
@@ -47,8 +46,9 @@ export function ActionForm({
               id="tool"
               value={request.tool}
               onChange={(e) => onUpdate("tool", e.target.value)}
-              placeholder="read / exec / network"
+              placeholder="read, exec, transfer..."
             />
+            <p className="text-[11px] text-muted-foreground">Which tool the agent uses</p>
           </div>
           <div className="space-y-1.5">
             <Label>Risk score</Label>
@@ -65,6 +65,7 @@ export function ActionForm({
                 {request.risk}
               </span>
             </div>
+            <p className="text-[11px] text-muted-foreground">0 = no risk, 10 = critical</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="target">Target</Label>
@@ -72,15 +73,15 @@ export function ActionForm({
               id="target"
               value={request.target}
               onChange={(e) => onUpdate("target", e.target.value)}
-              placeholder="staging-docs-bucket"
+              placeholder="staging-docs, prod-db..."
             />
+            <p className="text-[11px] text-muted-foreground">System or resource being accessed</p>
           </div>
         </div>
 
         <div className="mt-4 space-y-1.5">
           <Label htmlFor="justification">
-            Justification{" "}
-            <span className="font-normal text-muted-foreground">(audit trail only)</span>
+            Justification <span className="font-normal text-muted-foreground">(logged, not evaluated)</span>
           </Label>
           <Textarea
             id="justification"
@@ -92,51 +93,50 @@ export function ActionForm({
         </div>
       </div>
 
-      {/* Evaluation */}
-      <div className="space-y-4">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Step 3</p>
-          <h2 className="mt-1 text-lg font-semibold tracking-tight">Evaluation</h2>
-        </div>
+      {/* Evaluation result */}
+      {hasInput && (
+        <div className="space-y-4">
+          <h3 className="text-sm font-medium">Evaluation result</h3>
 
-        <div className="rounded-lg border">
-          {result.checks.map((check, i) => (
-            <div
-              key={check.ruleId}
-              className={`flex items-center justify-between gap-4 px-4 py-3 ${
-                i !== result.checks.length - 1 ? "border-b" : ""
-              }`}
-            >
-              <div className="min-w-0">
-                <p className="text-sm font-medium">{check.label}</p>
-                <p className="font-mono text-[11px] text-muted-foreground">{check.summary}</p>
-              </div>
-              <Badge
-                variant={check.passed ? "secondary" : "destructive"}
-                className="shrink-0 font-mono text-[10px] uppercase"
+          <div className="rounded-lg border">
+            {result.checks.map((check, i) => (
+              <div
+                key={check.ruleId}
+                className={`flex items-center justify-between gap-4 px-4 py-3 ${
+                  i !== result.checks.length - 1 ? "border-b" : ""
+                }`}
               >
-                {check.passed ? "pass" : "fail"}
-              </Badge>
-            </div>
-          ))}
-        </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">{check.label}</p>
+                  <p className="font-mono text-[11px] text-muted-foreground">{check.summary}</p>
+                </div>
+                <Badge
+                  variant={check.passed ? "secondary" : "destructive"}
+                  className="shrink-0 font-mono text-[10px] uppercase"
+                >
+                  {check.passed ? "pass" : "fail"}
+                </Badge>
+              </div>
+            ))}
+          </div>
 
-        <div className="flex items-center justify-between">
-          <Badge
-            variant={result.outcome === "allow" ? "default" : "destructive"}
-            className="font-mono text-xs uppercase tracking-widest"
-          >
-            {result.outcome}
-          </Badge>
-          <Button onClick={onSubmit} size="sm" disabled={isAttesting}>
-            {isAttesting
-              ? "Attesting…"
-              : isConnected
-                ? "Attest + log"
-                : "Add to audit log"}
-          </Button>
+          <div className="flex items-center justify-between">
+            <Badge
+              variant={result.outcome === "allow" ? "default" : "destructive"}
+              className="font-mono text-xs uppercase tracking-widest"
+            >
+              {result.outcome}
+            </Badge>
+            <Button onClick={onSubmit} size="sm" disabled={isAttesting}>
+              {isAttesting
+                ? "Attesting..."
+                : isConnected
+                  ? "Attest + log"
+                  : "Add to audit log"}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
