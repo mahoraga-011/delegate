@@ -1,26 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { TxFeedback } from "@/components/tx-feedback";
+import { HashDisplay } from "@/components/hash-display";
 import { useProposeAgreement, useSignAgreement, useGetAgreement } from "@/hooks/use-agreement";
 import { hashObject } from "@anthropic-hackathon/delegate-sdk";
 import type { Policy } from "@/lib/delegate";
 
 export function AgreementPanel({ policies }: { policies: Policy[] }) {
-  const { isConnected } = useAccount();
-
   // Propose state
   const [selectedPolicyId, setSelectedPolicyId] = useState(policies[0]?.id ?? "");
   const [counterparty, setCounterparty] = useState("");
-  const { propose, isPending: isProposing, txHash: proposeTx, isSuccess: proposeSuccess } = useProposeAgreement();
+  const { propose, isPending: isProposing, txHash: proposeTx, isSuccess: proposeSuccess, isError: proposeError, error: proposeErr } = useProposeAgreement();
 
   // Sign state
   const [signAgreementId, setSignAgreementId] = useState("");
-  const { sign, isPending: isSigning, txHash: signTx, isSuccess: signSuccess } = useSignAgreement();
+  const { sign, isPending: isSigning, txHash: signTx, isSuccess: signSuccess, isError: signError, error: signErr } = useSignAgreement();
 
   // Lookup state
   const [lookupId, setLookupId] = useState("");
@@ -33,20 +39,12 @@ export function AgreementPanel({ policies }: { policies: Policy[] }) {
     const policy = policies.find((p) => p.id === selectedPolicyId);
     if (!policy || !counterparty) return;
     const policyHash = hashObject(policy) as `0x${string}`;
-    try {
-      await propose(policyHash, counterparty as `0x${string}`);
-    } catch {
-      // handled by hook
-    }
+    try { await propose(policyHash, counterparty as `0x${string}`); } catch {}
   };
 
   const handleSign = async () => {
     if (!signAgreementId) return;
-    try {
-      await sign(signAgreementId as `0x${string}`);
-    } catch {
-      // handled by hook
-    }
+    try { await sign(signAgreementId as `0x${string}`); } catch {}
   };
 
   const handleLookup = () => {
@@ -54,100 +52,67 @@ export function AgreementPanel({ policies }: { policies: Policy[] }) {
     setTimeout(() => refetch(), 100);
   };
 
-  if (!isConnected) {
-    return (
-      <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-        Connect wallet to access Cooperate features
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Theme: Cooperate</p>
-        <h2 className="mt-1 text-lg font-semibold tracking-tight">Bilateral Agreements</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h3 className="text-sm font-semibold">Bilateral Agreements</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
           Propose agreements under shared policies. Both parties locked to the same immutable rules.
         </p>
       </div>
 
       {/* Propose Agreement */}
       <div className="rounded-lg border p-4 space-y-3">
-        <h3 className="text-sm font-semibold">Propose Agreement</h3>
+        <h4 className="text-sm font-medium">Propose Agreement</h4>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label>Policy</Label>
-            <select
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm"
-              value={selectedPolicyId}
-              onChange={(e) => setSelectedPolicyId(e.target.value)}
-            >
-              {policies.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+            <Select value={selectedPolicyId} onValueChange={(v) => { if (v) setSelectedPolicyId(v); }}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {policies.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="counterparty">Counterparty address</Label>
-            <Input
-              id="counterparty"
-              value={counterparty}
-              onChange={(e) => setCounterparty(e.target.value)}
-              placeholder="0x..."
-            />
+            <Input id="counterparty" value={counterparty} onChange={(e) => setCounterparty(e.target.value)} placeholder="0x..." />
           </div>
         </div>
         <div className="flex items-center gap-3">
           <Button size="sm" onClick={handlePropose} disabled={isProposing || !counterparty}>
-            {isProposing ? "Proposing…" : "Propose + sign"}
+            {isProposing ? "Proposing..." : "Propose + sign"}
           </Button>
-          {proposeSuccess && proposeTx && (
-            <span className="font-mono text-xs text-muted-foreground truncate max-w-[200px]">
-              tx: {proposeTx}
-            </span>
-          )}
+          <TxFeedback txHash={proposeTx} isPending={isProposing} isSuccess={proposeSuccess} isError={proposeError} error={proposeErr} />
         </div>
       </div>
 
       {/* Sign Agreement */}
       <div className="rounded-lg border p-4 space-y-3">
-        <h3 className="text-sm font-semibold">Sign Agreement</h3>
+        <h4 className="text-sm font-medium">Sign Agreement</h4>
         <div className="flex gap-2">
-          <Input
-            value={signAgreementId}
-            onChange={(e) => setSignAgreementId(e.target.value)}
-            placeholder="0x... agreement ID"
-            className="flex-1"
-          />
+          <Input value={signAgreementId} onChange={(e) => setSignAgreementId(e.target.value)} placeholder="0x... agreement ID" className="flex-1" />
           <Button size="sm" onClick={handleSign} disabled={isSigning || !signAgreementId}>
-            {isSigning ? "Signing…" : "Sign"}
+            {isSigning ? "Signing..." : "Sign"}
           </Button>
         </div>
-        {signSuccess && signTx && (
-          <span className="font-mono text-xs text-muted-foreground truncate max-w-[200px]">
-            tx: {signTx}
-          </span>
-        )}
+        <TxFeedback txHash={signTx} isPending={isSigning} isSuccess={signSuccess} isError={signError} error={signErr} />
       </div>
 
       {/* Lookup Agreement */}
       <div className="rounded-lg border p-4 space-y-3">
-        <h3 className="text-sm font-semibold">Agreement Status</h3>
+        <h4 className="text-sm font-medium">Agreement Status</h4>
         <div className="flex gap-2">
           <Input
             value={lookupId}
-            onChange={(e) => {
-              setLookupId(e.target.value);
-              setLookupTriggered(false);
-            }}
+            onChange={(e) => { setLookupId(e.target.value); setLookupTriggered(false); }}
             placeholder="0x... agreement ID"
             className="flex-1"
           />
           <Button size="sm" onClick={handleLookup} disabled={isLookingUp || !lookupId}>
-            {isLookingUp ? "Loading…" : "Lookup"}
+            {isLookingUp ? "Loading..." : "Lookup"}
           </Button>
         </div>
 
@@ -166,16 +131,16 @@ export function AgreementPanel({ policies }: { policies: Policy[] }) {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div>
                 <span className="text-muted-foreground">Party A:</span>
-                <p className="font-mono truncate">{agreement.partyA}</p>
+                <div className="mt-0.5"><HashDisplay hash={agreement.partyA} /></div>
               </div>
               <div>
                 <span className="text-muted-foreground">Party B:</span>
-                <p className="font-mono truncate">{agreement.partyB}</p>
+                <div className="mt-0.5"><HashDisplay hash={agreement.partyB} /></div>
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <span className="text-muted-foreground">Policy hash:</span>
-              <span className="font-mono truncate">{agreement.policyHash}</span>
+              <span className="text-muted-foreground">Policy:</span>
+              <HashDisplay hash={agreement.policyHash} />
             </div>
             <div className="flex gap-2">
               <Badge variant={agreement.signedByA ? "default" : "secondary"} className="font-mono text-[10px]">
