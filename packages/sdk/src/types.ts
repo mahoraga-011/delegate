@@ -1,7 +1,7 @@
 export type PolicyRule = {
   id: string;
   label: string;
-  field: "actionType" | "tool" | "risk" | "target" | "amount" | "recipient" | "currency";
+  field: string;
   operator: "equals" | "notEquals" | "includes" | "notIncludes" | "lte" | "gte";
   value: string | number;
   rationale: string;
@@ -26,6 +26,7 @@ export type AgentActionRequest = {
   recipient?: string;
   agentId?: string;
   agreementId?: string;
+  [key: string]: string | number | boolean | undefined;
 };
 
 export type PolicyCheck = {
