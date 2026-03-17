@@ -11,7 +11,7 @@ const STEPS = [
     title: "Define Policy",
     desc: "Agent A creates a set of deterministic rules.",
     active: ["agentA", "policy"],
-    arrow: { from: "agentA", to: "policy" },
+    arrows: [{ from: "agentA", to: "policy" }],
     detail: 'risk <= 4, tool = "transfer", amount <= 0.1 ETH',
   },
   {
@@ -19,7 +19,7 @@ const STEPS = [
     title: "Register On-Chain",
     desc: "Policy hash gets stored on the blockchain. Immutable once registered.",
     active: ["policy", "registry"],
-    arrow: { from: "policy", to: "registry" },
+    arrows: [{ from: "policy", to: "registry" }],
     detail: "keccak256(policy) → 0x3a4f...b2c1",
   },
   {
@@ -27,7 +27,7 @@ const STEPS = [
     title: "Agent B Discovers",
     desc: "Agent B looks up the policy hash on-chain and verifies the rules.",
     active: ["agentB", "registry"],
-    arrow: { from: "registry", to: "agentB" },
+    arrows: [{ from: "registry", to: "agentB" }],
     detail: "getPolicy(hash) → verified rules match",
   },
   {
@@ -35,8 +35,7 @@ const STEPS = [
     title: "Form Agreement",
     desc: "Both agents sign a bilateral agreement under the shared policy.",
     active: ["agentA", "agentB", "agreement"],
-    arrow: { from: "agentA", to: "agreement" },
-    arrow2: { from: "agentB", to: "agreement" },
+    arrows: [{ from: "agentA", to: "agreement" }, { from: "agentB", to: "agreement" }],
     detail: "Neither party can change the rules after signing",
   },
   {
@@ -44,7 +43,7 @@ const STEPS = [
     title: "Agent Makes Request",
     desc: "Agent A wants to transfer 0.05 ETH. The request goes to the policy engine.",
     active: ["agentA", "engine"],
-    arrow: { from: "agentA", to: "engine" },
+    arrows: [{ from: "agentA", to: "engine" }],
     detail: '{ tool: "transfer", amount: 0.05, risk: 2 }',
   },
   {
@@ -52,6 +51,7 @@ const STEPS = [
     title: "Engine Evaluates",
     desc: "Every rule checked. All pass = ALLOW. Any fail = DENY. Deterministic.",
     active: ["engine"],
+    arrows: [],
     result: "allow",
     detail: "risk 2 <= 4 ✓  |  tool = transfer ✓  |  amount 0.05 <= 0.1 ✓",
   },
@@ -60,7 +60,7 @@ const STEPS = [
     title: "Attest On-Chain",
     desc: "Decision hashes logged on the blockchain. Permanent, tamper-evident receipt.",
     active: ["engine", "auditlog"],
-    arrow: { from: "engine", to: "auditlog" },
+    arrows: [{ from: "engine", to: "auditlog" }],
     detail: "logDecision(policyHash, requestHash, resultHash)",
   },
   {
@@ -68,7 +68,7 @@ const STEPS = [
     title: "Vault Enforces Spending",
     desc: "Payment routed through the vault. Contract enforces per-tx and daily limits.",
     active: ["agentA", "vault"],
-    arrow: { from: "agentA", to: "vault" },
+    arrows: [{ from: "agentA", to: "vault" }],
     result: "allow",
     detail: "0.05 ETH <= 0.1 max/tx ✓  |  0.05 <= 0.5 max/day ✓",
   },
@@ -77,7 +77,7 @@ const STEPS = [
     title: "Overspend Denied",
     desc: "Agent tries 5 ETH. Vault rejects it on-chain. Agent never held the funds.",
     active: ["agentA", "vault"],
-    arrow: { from: "agentA", to: "vault" },
+    arrows: [{ from: "agentA", to: "vault" }],
     result: "deny",
     detail: "5 ETH > 0.1 max/tx ✗  DENIED by contract",
   },
@@ -86,28 +86,59 @@ const STEPS = [
     title: "Anyone Can Verify",
     desc: "Any agent re-evaluates the same request, computes hashes, checks on-chain. Match = authentic.",
     active: ["agentB", "verifier"],
-    arrow: { from: "agentB", to: "verifier" },
+    arrows: [{ from: "agentB", to: "verifier" }],
     detail: "Tamper one field → hashes don't match → NOT FOUND",
   },
 ];
 
 type NodeId = "agentA" | "agentB" | "policy" | "engine" | "registry" | "auditlog" | "verifier" | "agreement" | "vault";
 
+// Layout: spread out to avoid line overlaps
+// Row 1: Agent A (left), Policy (center), Agent B (right)
+// Row 2: Engine (center-left)
+// Row 3: Registry, AuditLog, Verifier, Agreement, Vault
 const NODES: Record<NodeId, { x: number; y: number; w: number; h: number; label: string; sub: string }> = {
-  agentA:    { x: 40,  y: 20,  w: 130, h: 56, label: "Agent A",       sub: "creates + operates" },
-  agentB:    { x: 290, y: 20,  w: 130, h: 56, label: "Agent B",       sub: "discovers + verifies" },
-  policy:    { x: 500, y: 20,  w: 130, h: 56, label: "Policy",        sub: "deterministic rules" },
-  engine:    { x: 250, y: 140, w: 160, h: 56, label: "Policy Engine",  sub: "evaluate request" },
-  registry:  { x: 30,  y: 270, w: 120, h: 50, label: "Registry",      sub: "policy hashes" },
-  auditlog:  { x: 170, y: 270, w: 120, h: 50, label: "AuditLog",      sub: "decisions" },
-  verifier:  { x: 310, y: 270, w: 120, h: 50, label: "Verifier",      sub: "proofs" },
-  agreement: { x: 450, y: 270, w: 120, h: 50, label: "Agreement",     sub: "bilateral" },
-  vault:     { x: 590, y: 270, w: 120, h: 50, label: "Vault",         sub: "escrow" },
+  agentA:    { x: 30,  y: 20,  w: 140, h: 56, label: "Agent A",       sub: "creates + operates" },
+  policy:    { x: 300, y: 20,  w: 140, h: 56, label: "Policy",        sub: "deterministic rules" },
+  agentB:    { x: 570, y: 20,  w: 140, h: 56, label: "Agent B",       sub: "discovers + verifies" },
+  engine:    { x: 30,  y: 145, w: 170, h: 56, label: "Policy Engine",  sub: "evaluate request" },
+  registry:  { x: 30,  y: 275, w: 120, h: 50, label: "Registry",      sub: "policy hashes" },
+  auditlog:  { x: 170, y: 275, w: 120, h: 50, label: "AuditLog",      sub: "decisions" },
+  verifier:  { x: 310, y: 275, w: 120, h: 50, label: "Verifier",      sub: "proofs" },
+  agreement: { x: 450, y: 275, w: 130, h: 50, label: "Agreement",     sub: "bilateral" },
+  vault:     { x: 600, y: 275, w: 120, h: 50, label: "Vault",         sub: "escrow" },
 };
 
-function center(id: NodeId): { x: number; y: number } {
-  const n = NODES[id];
-  return { x: n.x + n.w / 2, y: n.y + n.h / 2 };
+function cx(id: NodeId) { return NODES[id].x + NODES[id].w / 2; }
+function cy(id: NodeId) { return NODES[id].y + NODES[id].h / 2; }
+function bottom(id: NodeId) { return NODES[id].y + NODES[id].h; }
+function top(id: NodeId) { return NODES[id].y; }
+function right(id: NodeId) { return NODES[id].x + NODES[id].w; }
+function left(id: NodeId) { return NODES[id].x; }
+
+// Generate a curved path that avoids going through other nodes
+function curvePath(fromId: NodeId, toId: NodeId): string {
+  const fx = cx(fromId), fy = cy(fromId);
+  const tx = cx(toId), ty = cy(toId);
+
+  // Same row: use a slight curve
+  if (Math.abs(fy - ty) < 30) {
+    const midY = fy - 30;
+    return `M ${fx} ${fy} Q ${(fx + tx) / 2} ${midY} ${tx} ${ty}`;
+  }
+
+  // Top to bottom: curve outward to avoid center nodes
+  const midX = (fx + tx) / 2;
+  const midY = (fy + ty) / 2;
+
+  // If going from far left to far right (or vice versa), arc wider
+  if (Math.abs(fx - tx) > 300) {
+    const arcX = fx < tx ? midX + 40 : midX - 40;
+    return `M ${fx} ${bottom(fromId)} C ${fx} ${midY}, ${arcX} ${midY}, ${tx} ${top(toId)}`;
+  }
+
+  // Default: gentle S-curve
+  return `M ${fx} ${bottom(fromId)} C ${fx} ${midY}, ${tx} ${midY}, ${tx} ${top(toId)}`;
 }
 
 export function FlowDiagram() {
@@ -138,36 +169,66 @@ export function FlowDiagram() {
 
   return (
     <div className="space-y-4">
-      {/* Diagram */}
       <div className="rounded-xl border bg-card overflow-hidden">
-        <svg viewBox="0 0 740 340" className="w-full" style={{ minWidth: 500 }}>
+        <svg viewBox="0 0 750 350" className="w-full" style={{ minWidth: 500 }}>
           <defs>
             <pattern id="flowgrid" width="20" height="20" patternUnits="userSpaceOnUse">
-              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--color-border)" strokeWidth={0.2} opacity={0.5} />
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="var(--color-border)" strokeWidth={0.3} opacity={0.4} />
             </pattern>
           </defs>
-          <rect width="740" height="340" fill="var(--color-card)" />
-          <rect width="740" height="340" fill="url(#flowgrid)" />
+          <rect width="750" height="350" fill="var(--color-card)" />
+          <rect width="750" height="350" fill="url(#flowgrid)" />
+
+          {/* Arrows (behind nodes) */}
+          {current.arrows.map((arrow, i) => {
+            const path = curvePath(arrow.from as NodeId, arrow.to as NodeId);
+            return (
+              <motion.g key={`arrow-${step}-${i}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: i * 0.15 }}>
+                <motion.path
+                  d={path}
+                  fill="none"
+                  stroke="var(--color-foreground)"
+                  strokeWidth={2}
+                  strokeDasharray="6 4"
+                  opacity={0.5}
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.8, delay: i * 0.15 }}
+                />
+                <motion.circle
+                  r={5}
+                  fill="var(--color-foreground)"
+                  opacity={0.9}
+                >
+                  <animateMotion
+                    dur="2s"
+                    repeatCount="indefinite"
+                    path={path}
+                    begin={`${i * 0.3}s`}
+                  />
+                </motion.circle>
+              </motion.g>
+            );
+          })}
 
           {/* Nodes */}
           {(Object.entries(NODES) as [NodeId, typeof NODES[NodeId]][]).map(([id, n]) => {
             const active = isActive(id);
             return (
               <g key={id}>
-                {/* Glow */}
                 {active && (
                   <motion.rect
-                    x={n.x - 3}
-                    y={n.y - 3}
-                    width={n.w + 6}
-                    height={n.h + 6}
-                    rx={10}
+                    x={n.x - 4}
+                    y={n.y - 4}
+                    width={n.w + 8}
+                    height={n.h + 8}
+                    rx={12}
                     fill="none"
                     stroke="var(--color-foreground)"
                     strokeWidth={2}
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: [0.3, 0.7, 0.3] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
+                    animate={{ opacity: [0.2, 0.6, 0.2] }}
+                    transition={{ duration: 2, repeat: Infinity }}
                   />
                 )}
                 <rect
@@ -178,19 +239,19 @@ export function FlowDiagram() {
                   rx={8}
                   fill={active ? "var(--color-foreground)" : "var(--color-background)"}
                   stroke="var(--color-border)"
-                  strokeWidth={1}
-                  opacity={active ? 1 : 0.5}
+                  strokeWidth={1.5}
+                  opacity={active ? 1 : 0.6}
                 />
                 <text
                   x={n.x + n.w / 2}
-                  y={n.y + n.h / 2 - 6}
+                  y={n.y + n.h / 2 - 7}
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fill={active ? "var(--color-background)" : "var(--color-foreground)"}
-                  fontSize={12}
-                  fontWeight={600}
+                  fontSize={13}
+                  fontWeight={700}
                   fontFamily="var(--font-sans)"
-                  opacity={active ? 1 : 0.5}
+                  opacity={active ? 1 : 0.7}
                 >
                   {n.label}
                 </text>
@@ -199,10 +260,11 @@ export function FlowDiagram() {
                   y={n.y + n.h / 2 + 10}
                   textAnchor="middle"
                   dominantBaseline="middle"
-                  fill="var(--color-muted-foreground)"
-                  fontSize={9}
+                  fill={active ? "var(--color-muted-foreground)" : "var(--color-muted-foreground)"}
+                  fontSize={10}
+                  fontWeight={500}
                   fontFamily="var(--font-sans)"
-                  opacity={active ? 0.8 : 0.3}
+                  opacity={active ? 0.9 : 0.4}
                 >
                   {n.sub}
                 </text>
@@ -210,82 +272,32 @@ export function FlowDiagram() {
             );
           })}
 
-          {/* Arrow */}
-          {current.arrow && (
-            <motion.g key={`arrow-${step}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-              <line
-                x1={center(current.arrow.from as NodeId).x}
-                y1={center(current.arrow.from as NodeId).y}
-                x2={center(current.arrow.to as NodeId).x}
-                y2={center(current.arrow.to as NodeId).y}
-                stroke="var(--color-foreground)"
-                strokeWidth={1.5}
-                strokeDasharray="5 3"
-                opacity={0.6}
-              />
-              <motion.circle
-                r={4}
-                fill="var(--color-foreground)"
-                animate={{
-                  cx: [center(current.arrow.from as NodeId).x, center(current.arrow.to as NodeId).x],
-                  cy: [center(current.arrow.from as NodeId).y, center(current.arrow.to as NodeId).y],
-                }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              />
-            </motion.g>
-          )}
-
-          {/* Second arrow (for agreement step) */}
-          {"arrow2" in current && current.arrow2 && (
-            <motion.g key={`arrow2-${step}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.2 }}>
-              <line
-                x1={center((current.arrow2 as {from: string; to: string}).from as NodeId).x}
-                y1={center((current.arrow2 as {from: string; to: string}).from as NodeId).y}
-                x2={center((current.arrow2 as {from: string; to: string}).to as NodeId).x}
-                y2={center((current.arrow2 as {from: string; to: string}).to as NodeId).y}
-                stroke="var(--color-foreground)"
-                strokeWidth={1.5}
-                strokeDasharray="5 3"
-                opacity={0.6}
-              />
-              <motion.circle
-                r={4}
-                fill="var(--color-foreground)"
-                animate={{
-                  cx: [center((current.arrow2 as {from: string; to: string}).from as NodeId).x, center((current.arrow2 as {from: string; to: string}).to as NodeId).x],
-                  cy: [center((current.arrow2 as {from: string; to: string}).from as NodeId).y, center((current.arrow2 as {from: string; to: string}).to as NodeId).y],
-                }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-              />
-            </motion.g>
-          )}
-
           {/* Result badge */}
           {current.result && (
             <motion.g
               key={`result-${step}`}
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.4, type: "spring" }}
             >
               <rect
-                x={330}
-                y={148}
-                width={60}
-                height={24}
-                rx={12}
+                x={cx(current.arrows.length > 0 ? current.arrows[0].to as NodeId : "engine") - 35}
+                y={cy(current.arrows.length > 0 ? current.arrows[0].to as NodeId : "engine") - 35}
+                width={70}
+                height={26}
+                rx={13}
                 fill={current.result === "allow" ? "#22c55e" : "#ef4444"}
               />
               <text
-                x={360}
-                y={161}
+                x={cx(current.arrows.length > 0 ? current.arrows[0].to as NodeId : "engine")}
+                y={cy(current.arrows.length > 0 ? current.arrows[0].to as NodeId : "engine") - 22}
                 textAnchor="middle"
                 dominantBaseline="middle"
                 fill="white"
-                fontSize={10}
+                fontSize={11}
                 fontWeight={700}
                 fontFamily="var(--font-sans)"
-                letterSpacing={1}
+                letterSpacing={1.5}
               >
                 {current.result.toUpperCase()}
               </text>
@@ -311,7 +323,7 @@ export function FlowDiagram() {
               <h4 className="font-semibold">{current.title}</h4>
             </div>
             <p className="text-sm text-muted-foreground">{current.desc}</p>
-            <p className="mt-2 font-mono text-xs text-muted-foreground bg-muted/50 rounded px-3 py-2">
+            <p className="mt-2 font-mono text-xs text-foreground/80 bg-muted rounded px-3 py-2">
               {current.detail}
             </p>
           </motion.div>
