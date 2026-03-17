@@ -22,35 +22,27 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import type { Policy, PolicyRule } from "@/lib/delegate";
 
-const FIELDS: { value: PolicyRule["field"]; label: string; numeric: boolean }[] = [
-  { value: "actionType", label: "Action Type", numeric: false },
-  { value: "tool", label: "Tool", numeric: false },
-  { value: "risk", label: "Risk", numeric: true },
-  { value: "target", label: "Target", numeric: false },
-  { value: "amount", label: "Amount", numeric: true },
-  { value: "recipient", label: "Recipient", numeric: false },
-  { value: "currency", label: "Currency", numeric: false },
+// Suggested fields (user can also type any custom field name)
+const SUGGESTED_FIELDS = [
+  "actionType", "tool", "risk", "target", "amount", "recipient", "currency",
+  "department", "dataType", "environment", "region", "approvalLevel",
+  "encryptionRequired", "resourceType", "accessLevel", "timeWindow",
 ];
 
-const STRING_OPERATORS: { value: PolicyRule["operator"]; label: string }[] = [
+const ALL_OPERATORS: { value: PolicyRule["operator"]; label: string }[] = [
   { value: "equals", label: "equals" },
   { value: "notEquals", label: "not equals" },
-  { value: "includes", label: "includes" },
+  { value: "includes", label: "includes (contains)" },
   { value: "notIncludes", label: "not includes" },
-];
-
-const NUMERIC_OPERATORS: { value: PolicyRule["operator"]; label: string }[] = [
   { value: "lte", label: "<= (at most)" },
   { value: "gte", label: ">= (at least)" },
-  { value: "equals", label: "equals" },
-  { value: "notEquals", label: "not equals" },
 ];
 
 function emptyRule(): PolicyRule {
   return {
     id: `rule-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     label: "",
-    field: "actionType",
+    field: "",
     operator: "equals",
     value: "",
     rationale: "",
@@ -80,15 +72,9 @@ export function PolicyBuilderDialog({
     setRules((r) => r.map((rule, i) => (i === index ? { ...rule, ...updates } : rule)));
   };
 
-  const isNumericField = (field: string) => {
-    return FIELDS.find((f) => f.value === field)?.numeric ?? false;
-  };
+  const isNumericOperator = (op: string) => op === "lte" || op === "gte";
 
-  const getOperators = (field: string) => {
-    return isNumericField(field) ? NUMERIC_OPERATORS : STRING_OPERATORS;
-  };
-
-  const canSave = name.trim() && rules.length > 0 && rules.every((r) => r.label && r.value !== "");
+  const canSave = name.trim() && rules.length > 0 && rules.every((r) => r.label && r.field && r.value !== "");
 
   const handleSave = () => {
     const policy: Policy = {
@@ -98,11 +84,10 @@ export function PolicyBuilderDialog({
       defaultEffect: "deny",
       rules: rules.map((r) => ({
         ...r,
-        value: isNumericField(r.field) ? Number(r.value) : String(r.value),
+        value: isNumericOperator(r.operator) ? Number(r.value) : String(r.value),
       })),
     };
     onSave(policy);
-    // Reset form
     setName("");
     setDescription("");
     setRules([emptyRule()]);
@@ -115,12 +100,11 @@ export function PolicyBuilderDialog({
         <DialogHeader>
           <DialogTitle>Create policy</DialogTitle>
           <DialogDescription>
-            Define rules that will be evaluated against agent action requests.
+            Define rules that will be evaluated against agent action requests. Use any field name that matches your domain.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 pt-2">
-          {/* Name + description */}
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="policyName">Name</Label>
@@ -128,7 +112,7 @@ export function PolicyBuilderDialog({
                 id="policyName"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="My spending policy"
+                placeholder="Procurement spending policy"
               />
             </div>
             <div className="space-y-1.5">
@@ -152,104 +136,90 @@ export function PolicyBuilderDialog({
               </Button>
             </div>
 
-            {rules.map((rule, index) => {
-              const operators = getOperators(rule.field);
+            {rules.map((rule, index) => (
+              <div key={rule.id} className="rounded-lg border p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <Badge variant="secondary" className="font-mono text-[10px]">
+                    Rule {index + 1}
+                  </Badge>
+                  {rules.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                      onClick={() => removeRule(index)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
 
-              return (
-                <div key={rule.id} className="rounded-lg border p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Badge variant="secondary" className="font-mono text-[10px]">
-                      Rule {index + 1}
-                    </Badge>
-                    {rules.length > 1 && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                        onClick={() => removeRule(index)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
-                  </div>
+                <div className="space-y-1.5">
+                  <Label>Label</Label>
+                  <Input
+                    value={rule.label}
+                    onChange={(e) => updateRule(index, { label: e.target.value })}
+                    placeholder="Spending must be under $10,000"
+                  />
+                </div>
 
+                <div className="grid gap-3 sm:grid-cols-3">
                   <div className="space-y-1.5">
-                    <Label>Label</Label>
+                    <Label>Field</Label>
                     <Input
-                      value={rule.label}
-                      onChange={(e) => updateRule(index, { label: e.target.value })}
-                      placeholder="Risk must be at or below 5"
+                      value={rule.field}
+                      onChange={(e) => updateRule(index, { field: e.target.value })}
+                      placeholder="amount"
+                      list={`field-suggestions-${index}`}
                     />
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-3">
-                    <div className="space-y-1.5">
-                      <Label>Field</Label>
-                      <Select
-                        value={rule.field}
-                        onValueChange={(v) => {
-                          if (!v) return;
-                          const updates: Partial<PolicyRule> = {
-                            field: v as PolicyRule["field"],
-                            value: "",
-                          };
-                          const newOps = isNumericField(v) ? NUMERIC_OPERATORS : STRING_OPERATORS;
-                          if (!newOps.find((o) => o.value === rule.operator)) {
-                            updates.operator = newOps[0].value;
-                          }
-                          updateRule(index, updates);
-                        }}
-                      >
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {FIELDS.map((f) => (
-                            <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label>Operator</Label>
-                      <Select
-                        value={rule.operator}
-                        onValueChange={(v) => {
-                          if (v) updateRule(index, { operator: v as PolicyRule["operator"] });
-                        }}
-                      >
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {operators.map((op) => (
-                            <SelectItem key={op.value} value={op.value}>{op.label}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <Label>Value</Label>
-                      <Input
-                        type={isNumericField(rule.field) ? "number" : "text"}
-                        value={rule.value}
-                        onChange={(e) => updateRule(index, { value: e.target.value })}
-                        placeholder={isNumericField(rule.field) ? "5" : "read|write"}
-                      />
-                    </div>
+                    <datalist id={`field-suggestions-${index}`}>
+                      {SUGGESTED_FIELDS.map((f) => (
+                        <option key={f} value={f} />
+                      ))}
+                    </datalist>
+                    <p className="text-[10px] text-muted-foreground">Type any field name or pick a suggestion</p>
                   </div>
 
                   <div className="space-y-1.5">
-                    <Label>
-                      Rationale <span className="font-normal text-muted-foreground">(optional)</span>
-                    </Label>
+                    <Label>Operator</Label>
+                    <Select
+                      value={rule.operator}
+                      onValueChange={(v) => {
+                        if (v) updateRule(index, { operator: v as PolicyRule["operator"] });
+                      }}
+                    >
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {ALL_OPERATORS.map((op) => (
+                          <SelectItem key={op.value} value={op.value}>{op.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label>Value</Label>
                     <Input
-                      value={rule.rationale}
-                      onChange={(e) => updateRule(index, { rationale: e.target.value })}
-                      placeholder="Why this rule exists"
+                      type={isNumericOperator(rule.operator) ? "number" : "text"}
+                      value={rule.value}
+                      onChange={(e) => updateRule(index, { value: e.target.value })}
+                      placeholder={isNumericOperator(rule.operator) ? "10000" : "read|write"}
                     />
                   </div>
                 </div>
-              );
-            })}
+
+                <div className="space-y-1.5">
+                  <Label>
+                    Rationale <span className="font-normal text-muted-foreground">(optional)</span>
+                  </Label>
+                  <Input
+                    value={rule.rationale}
+                    onChange={(e) => updateRule(index, { rationale: e.target.value })}
+                    placeholder="Why this rule exists"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="flex justify-end gap-3 pt-2">

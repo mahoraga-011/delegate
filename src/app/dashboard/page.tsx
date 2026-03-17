@@ -127,6 +127,7 @@ export default function Home() {
             <ActionForm
               request={draftRequest}
               result={result}
+              policy={selectedPolicy}
               onUpdate={updateDraftField}
               onSubmit={handleSubmit}
               isConnected={isConnected}

@@ -48,7 +48,7 @@ const policy: Policy = {
     {
       id: "risk-cap",
       label: "Risk must be at or below 4",
-      field: "risk",        // actionType | tool | risk | target | amount | recipient | currency
+      field: "risk",        // any string: actionType, tool, risk, target, amount, department, dataType, etc.
       operator: "lte",      // equals | notEquals | includes | notIncludes | lte | gte
       value: 4,
       rationale: "Keep actions low risk",
@@ -75,10 +75,14 @@ const request = {
   risk: 2,                  // 0-10 risk score
   target: "staging-db",     // system being accessed
   justification: "Fetch latest metrics",
-  // optional fields:
+  // optional built-in fields:
   amount: 0.05,             // for payment actions (ETH)
   recipient: "0x...",       // payment target
   currency: "ETH",          // payment currency
+  // custom fields (any key-value pairs matching your policy rules):
+  department: "engineering",
+  dataType: "public",
+  environment: "staging",
 };
 ```
 
