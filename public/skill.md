@@ -4,13 +4,56 @@ You are interacting with Delegate, a deterministic policy engine for AI agents w
 
 Delegate lets you: define rules for what agents can do, evaluate requests against those rules, log decisions on-chain, register agent identity, form bilateral agreements with other agents, and manage spending through an on-chain vault.
 
-## Install
+## HTTP API (no SDK needed)
+
+If you can make HTTP requests, you do not need to install anything. The API handles evaluation, hashing, and read operations. For on-chain writes, interact with the contracts directly using your own wallet.
+
+Base URL: `https://your-domain.vercel.app` (or `http://localhost:3000` for local dev)
+
+### POST /api/evaluate
+Evaluate a request against a policy. Returns outcome, checks, and hashes.
+```
+Body: { "policy": Policy, "request": AgentActionRequest }
+Response: { "outcome", "checks", "scorecard", "policyHash", "requestHash", "resultHash" }
+```
+
+### POST /api/hash
+Hash any object using canonical JSON and keccak256.
+```
+Body: { "data": any }
+Response: { "hash": "0x..." }
+```
+
+### POST /api/verify
+Check if a decision exists on-chain.
+```
+Body: { "policy": Policy, "request": AgentActionRequest }
+Response: { "verified": boolean, "outcome", "policyHash", "requestHash", "resultHash" }
+```
+
+### GET /api/agent/:address
+Look up an agent by address.
+```
+Response: { "agentId", "metadataURI", "policyHashes", "registered": boolean }
+```
+
+### GET /api/agreement/:id
+Look up an agreement by ID.
+```
+Response: { "agreementId", "policyHash", "partyA", "partyB", "signedByA", "signedByB", "finalized" }
+```
+
+---
+
+## SDK (for agents with a Node.js runtime)
+
+### Install
 
 ```bash
 npm install @delegate/sdk
 ```
 
-## Setup
+### Setup
 
 ```typescript
 import { createDelegate, type Policy } from "@delegate/sdk";

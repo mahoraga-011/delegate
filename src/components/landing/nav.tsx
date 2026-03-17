@@ -22,6 +22,9 @@ export function LandingNav() {
           <button onClick={() => scrollTo("for-agents")} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
             For Agents
           </button>
+          <Link href="/docs" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Docs
+          </Link>
           <Link href="/dashboard" className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
             Dashboard
           </Link>
