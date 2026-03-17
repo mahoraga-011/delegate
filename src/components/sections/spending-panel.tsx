@@ -123,19 +123,19 @@ export function SpendingPanel({ policies }: { policies: Policy[] }) {
         <div className="rounded-lg border p-3 text-center">
           <p className="text-xs text-muted-foreground">Vault balance</p>
           <p className="text-lg font-bold font-mono">
-            {balance !== undefined ? formatEther(balance) : "—"} <span className="text-xs font-normal">ETH</span>
+            {balance !== undefined ? formatEther(balance) : "-"} <span className="text-xs font-normal">ETH</span>
           </p>
         </div>
         <div className="rounded-lg border p-3 text-center">
           <p className="text-xs text-muted-foreground">Spent today</p>
           <p className="text-lg font-bold font-mono">
-            {spentToday !== undefined ? formatEther(spentToday) : "—"} <span className="text-xs font-normal">ETH</span>
+            {spentToday !== undefined ? formatEther(spentToday) : "-"} <span className="text-xs font-normal">ETH</span>
           </p>
         </div>
         <div className="rounded-lg border p-3 text-center">
           <p className="text-xs text-muted-foreground">Daily limit</p>
           <p className="text-lg font-bold font-mono">
-            {limit ? formatEther(limit.maxPerDay) : "—"} <span className="text-xs font-normal">ETH</span>
+            {limit ? formatEther(limit.maxPerDay) : "-"} <span className="text-xs font-normal">ETH</span>
           </p>
         </div>
       </div>

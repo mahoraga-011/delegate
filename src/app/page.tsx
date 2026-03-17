@@ -54,7 +54,7 @@ export default function Home() {
         const txHash = await attest(selectedPolicy, request, result);
         entry.txHash = txHash;
       } catch {
-        // On-chain attestation failed — still add to local log
+        // On-chain attestation failed, still add to local log
       }
     }
 

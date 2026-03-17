@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Delegate — Policy enforcement for autonomous agents",
+  title: "Delegate | Policy enforcement for autonomous agents",
   description:
-    "Deterministic policy engine with on-chain verification. Trust agent commitments, form bilateral agreements, and enforce spending limits — all verifiable on-chain.",
+    "Deterministic policy engine with on-chain verification. Trust agent commitments, form bilateral agreements, and enforce spending limits, all verifiable on-chain.",
   keywords: [
     "AI agents",
     "policy engine",
@@ -34,17 +34,17 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_URL || "http://localhost:3000"),
   openGraph: {
     type: "website",
-    title: "Delegate — Policy enforcement for autonomous agents",
+    title: "Delegate | Policy enforcement for autonomous agents",
     description:
-      "Deterministic policy engine with on-chain verification. Trust, cooperate, and pay — all verifiable on-chain.",
+      "Deterministic policy engine with on-chain verification. Trust, cooperate, and pay. All verifiable on-chain.",
     siteName: "Delegate",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Delegate — Policy enforcement for autonomous agents",
+    title: "Delegate | Policy enforcement for autonomous agents",
     description:
-      "Deterministic policy engine with on-chain verification. Trust, cooperate, and pay — all verifiable on-chain.",
+      "Deterministic policy engine with on-chain verification. Trust, cooperate, and pay. All verifiable on-chain.",
     creator: "@anthropic",
   },
   robots: {

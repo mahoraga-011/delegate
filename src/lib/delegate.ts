@@ -140,7 +140,7 @@ export const trustVerificationPolicy: Policy = {
   id: "trust-verification",
   name: "Trust verification",
   description:
-    "Low-risk, read/query/verify actions only — ideal for agent identity verification workflows.",
+    "Low-risk, read/query/verify actions only. Ideal for agent identity verification workflows.",
   defaultEffect: "deny",
   rules: [
     {
@@ -166,7 +166,7 @@ export const dataSharingPolicy: Policy = {
   id: "data-sharing-agreement",
   name: "Data sharing agreement",
   description:
-    "Read-only access, risk at most 3, staging targets only — for bilateral data sharing agreements.",
+    "Read-only access, risk at most 3, staging targets only. For bilateral data sharing agreements.",
   defaultEffect: "deny",
   rules: [
     {

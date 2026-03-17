@@ -3,7 +3,7 @@ import {
   AGENT_REGISTRY_ABI, AGREEMENT_ABI, VAULT_ABI,
 } from "@anthropic-hackathon/delegate-sdk";
 
-// Anvil deploy defaults — override with NEXT_PUBLIC_* env vars for Base Sepolia
+// Anvil deploy defaults. Override with NEXT_PUBLIC_* env vars for Base Sepolia
 export const AUDIT_LOG_ADDRESS = (process.env.NEXT_PUBLIC_AUDIT_LOG_ADDRESS ||
   "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512") as `0x${string}`;
 

@@ -24,7 +24,7 @@ export function Hero({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[
-          { icon: ShieldCheck, title: "Policy-first", desc: "Explicit, readable rules — not buried in prompts." },
+          { icon: ShieldCheck, title: "Policy-first", desc: "Explicit, readable rules, not buried in prompts." },
           { icon: CheckCircle2, title: "Deterministic", desc: "Same input, same decision, every time." },
           { icon: FileText, title: "Auditable", desc: "Every decision leaves a forensic breadcrumb." },
         ].map(({ icon: Icon, title, desc }) => (

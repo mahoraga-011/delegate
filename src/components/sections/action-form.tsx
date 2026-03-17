@@ -80,7 +80,7 @@ export function ActionForm({
         <div className="mt-4 space-y-1.5">
           <Label htmlFor="justification">
             Justification{" "}
-            <span className="font-normal text-muted-foreground">— audit trail only</span>
+            <span className="font-normal text-muted-foreground">(audit trail only)</span>
           </Label>
           <Textarea
             id="justification"
