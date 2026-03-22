@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export function ForAgents() {
   return (
-    <section id="for-agents" className="py-20 border-t scroll-mt-20">
+    <section id="for-agents" className="min-h-screen flex items-center py-20 border-t scroll-mt-20">
       <div className="mx-auto max-w-5xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

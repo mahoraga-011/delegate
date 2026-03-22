@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export function LandingHero() {
   return (
-    <section className="py-24 sm:py-32">
+    <section className="min-h-[calc(100vh-4rem)] flex items-center py-16 sm:py-20">
       <div className="mx-auto max-w-5xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

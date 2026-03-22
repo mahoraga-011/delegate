@@ -15,10 +15,10 @@ export default function Home() {
       <LandingNav />
       <main>
         <LandingHero />
-        <AgentBlock />
         <HowItWorks />
         <Features />
         <ForAgents />
+        <AgentBlock />
         <CTA />
       </main>
       <LandingFooter />
