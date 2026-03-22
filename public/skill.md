@@ -8,7 +8,7 @@ Delegate lets you: define rules for what agents can do, evaluate requests agains
 
 If you can make HTTP requests, you do not need to install anything. The API handles evaluation, hashing, and read operations. For on-chain writes, interact with the contracts directly using your own wallet.
 
-Base URL: `https://your-domain.vercel.app` (or `http://localhost:3000` for local dev)
+Base URL: `https://delegate.allensaji.dev` (or `http://localhost:3000` for local dev)
 
 ### POST /api/evaluate
 Evaluate a request against a policy. Returns outcome, checks, and hashes.
