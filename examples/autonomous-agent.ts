@@ -45,7 +45,7 @@ function parseChainId(skill: string): number {
 
 function parsePackageName(skill: string): string {
   const match = skill.match(/npm install (.+)/);
-  return match ? match[1].trim() : "@delegate/sdk";
+  return match ? match[1].trim() : "delegate-sdk";
 }
 
 // ── Phase 2: Agent sets up SDK using only skill.md info ──

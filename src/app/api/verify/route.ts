@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { evaluatePolicy, hashObject, VERIFIER_ABI } from "@delegate/sdk";
+import { evaluatePolicy, hashObject, VERIFIER_ABI } from "delegate-sdk";
 import { publicClient, CONTRACTS } from "../_lib/chain";
 
 export async function POST(req: Request) {

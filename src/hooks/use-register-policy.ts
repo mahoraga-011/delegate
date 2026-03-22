@@ -1,9 +1,9 @@
 "use client";
 
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { hashObject } from "@delegate/sdk";
+import { hashObject } from "delegate-sdk";
 import { registryConfig } from "@/lib/contracts";
-import type { Policy } from "@delegate/sdk";
+import type { Policy } from "delegate-sdk";
 
 export function useRegisterPolicy() {
   const { writeContractAsync, data: txHash, isPending, isError, error, reset } = useWriteContract();

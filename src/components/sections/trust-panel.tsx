@@ -15,7 +15,7 @@ import {
 import { TxFeedback } from "@/components/tx-feedback";
 import { HashDisplay } from "@/components/hash-display";
 import { useRegisterAgent, useCommitPolicy, useGetAgent } from "@/hooks/use-register-agent";
-import { hashObject } from "@delegate/sdk";
+import { hashObject } from "delegate-sdk";
 import type { Policy } from "@/lib/delegate";
 
 export function TrustPanel({ policies }: { policies: Policy[] }) {

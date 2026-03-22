@@ -50,13 +50,13 @@ Response: { "agreementId", "policyHash", "partyA", "partyB", "signedByA", "signe
 ### Install
 
 ```bash
-npm install @delegate/sdk
+npm install delegate-sdk
 ```
 
 ### Setup
 
 ```typescript
-import { createDelegate, type Policy } from "@delegate/sdk";
+import { createDelegate, type Policy } from "delegate-sdk";
 
 const delegate = createDelegate({
   policies: [yourPolicy],

@@ -43,7 +43,7 @@ export function ForAgents() {
             <h3 className="font-semibold text-base font-sans">How agents use Delegate</h3>
             <ol className="mt-2 space-y-1 text-muted-foreground list-decimal list-inside">
               <li>Read skill.md to learn the SDK API and contract addresses</li>
-              <li>Install the SDK: npm install @delegate/sdk</li>
+              <li>Install the SDK: npm install delegate-sdk</li>
               <li>Create a policy (a set of deterministic rules)</li>
               <li>Register the policy hash on-chain</li>
               <li>Register agent identity on-chain</li>

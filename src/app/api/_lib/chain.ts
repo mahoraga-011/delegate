@@ -4,7 +4,7 @@ import {
   AGENT_REGISTRY_ABI,
   AGREEMENT_ABI,
   VERIFIER_ABI,
-} from "@delegate/sdk";
+} from "delegate-sdk";
 
 const CONTRACTS = {
   registry: (process.env.NEXT_PUBLIC_REGISTRY_ADDRESS || "0x3a45bC84fa4a460FD65a4CfE1B96edA45bD88E15") as `0x${string}`,

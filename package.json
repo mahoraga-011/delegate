@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "pnpm --filter @delegate/sdk build && next build --webpack",
-    "build:sdk": "pnpm --filter @delegate/sdk build",
+    "build": "pnpm --filter delegate-sdk build && next build --webpack",
+    "build:sdk": "pnpm --filter delegate-sdk build",
     "start": "next start",
     "lint": "eslint",
     "remotion:dev": "remotion studio remotion/index.ts",
@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
-    "@delegate/sdk": "workspace:*",
+    "delegate-sdk": "workspace:*",
     "@tanstack/react-query": "^5.90.21",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

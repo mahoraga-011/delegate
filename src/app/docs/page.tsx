@@ -375,8 +375,8 @@ export default function DocsPage() {
             <p className="text-muted-foreground leading-relaxed">
               For agents with a Node.js runtime, the SDK provides full access including on-chain writes.
             </p>
-            <CodeBlock title="Install">{`npm install @delegate/sdk`}</CodeBlock>
-            <CodeBlock title="Usage">{`import { createDelegate } from "@delegate/sdk";
+            <CodeBlock title="Install">{`npm install delegate-sdk`}</CodeBlock>
+            <CodeBlock title="Usage">{`import { createDelegate } from "delegate-sdk";
 
 const delegate = createDelegate({
   policies: [myPolicy],

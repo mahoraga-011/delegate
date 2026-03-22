@@ -9,13 +9,13 @@ export type {
   AgentIdentity,
   Agreement,
   VaultInfo,
-} from "@delegate/sdk";
+} from "delegate-sdk";
 
-export { evaluatePolicy } from "@delegate/sdk";
+export { evaluatePolicy } from "delegate-sdk";
 
 // Dashboard-specific sample data and helpers below
-import type { Policy, AgentActionRequest, AuditEntry } from "@delegate/sdk";
-import { evaluatePolicy } from "@delegate/sdk";
+import type { Policy, AgentActionRequest, AuditEntry } from "delegate-sdk";
+import { evaluatePolicy } from "delegate-sdk";
 
 export const samplePolicies: Policy[] = [
   {

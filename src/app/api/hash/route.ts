@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hashObject } from "@delegate/sdk";
+import { hashObject } from "delegate-sdk";
 
 export async function POST(req: Request) {
   try {

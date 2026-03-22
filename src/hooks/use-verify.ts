@@ -1,9 +1,9 @@
 "use client";
 
 import { useReadContract } from "wagmi";
-import { hashObject } from "@delegate/sdk";
+import { hashObject } from "delegate-sdk";
 import { verifierConfig } from "@/lib/contracts";
-import type { Policy, AgentActionRequest, EvaluationResult } from "@delegate/sdk";
+import type { Policy, AgentActionRequest, EvaluationResult } from "delegate-sdk";
 
 export function useVerify(
   policy: Policy | null,
